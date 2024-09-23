@@ -1,0 +1,12 @@
+[Unit]
+Description=CPU Utilization Monitoring Service
+After=phosphor-dbus-interfaces.service
+
+[Service]
+ExecStart=/usr/bin/cpu_utilization
+Restart=always
+Type=dbus
+BusName=xyz.openbmc_project.CpuUtilization
+
+[Install]
+WantedBy=multi-user.target
