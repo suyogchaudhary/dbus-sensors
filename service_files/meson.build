@@ -16,6 +16,7 @@ unit_files = [
     ['nvme', 'xyz.openbmc_project.nvmesensor.service'],
     ['psu', 'xyz.openbmc_project.psusensor.service'],
     ['external', 'xyz.openbmc_project.externalsensor.service'],
+    ['cpuutilization', 'xyz.openbmc_project.cpuutilization.service']
 ]
 
 fs = import('fs')
