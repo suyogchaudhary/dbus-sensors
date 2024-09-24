@@ -1,10 +1,10 @@
 #include <sdbusplus/bus.hpp>
 #include <sdbusplus/server/object.hpp>
-#include <sdbusplus/timer.hpp>
 #include <xyz/openbmc_project/Sensor/Value/server.hpp>
 #include <fstream>
 #include <iostream>
 #include <chrono>
+#include <thread>
 
 using Value = sdbusplus::xyz::openbmc_project::Sensor::server::Value;
 
@@ -13,31 +13,40 @@ class CpuUtilization : public sdbusplus::server::object::object<Value>
   public:
     CpuUtilization(sdbusplus::bus::bus& bus, const char* path) :
         sdbusplus::server::object::object<Value>(bus, path),
-        bus(bus),
-        timer(bus)
+        bus(bus)
     {
-        timer.start(std::chrono::seconds(60),
-                    std::bind(&CpuUtilization::update, this));
+        // Start a thread that will periodically update CPU utilization
+        updateThread = std::thread([this]() {
+            while (true)
+            {
+                std::this_thread::sleep_for(std::chrono::seconds(60));
+                update();
+            }
+        });
+        updateThread.detach();
     }
 
-    double value(double value) override
+    // Override the setter method for the value
+    double value(double newValue) override
     {
-        return Value::value(value);
+        return Value::value(newValue);
     }
 
-    double value() override
+    // Override the getter method for the value
+    double value() const override
     {
         return Value::value();
     }
 
   private:
     sdbusplus::bus::bus& bus;
-    sdbusplus::timer::timer timer;
+    std::thread updateThread;
 
     void update()
     {
         double cpuUsage = getCpuUsage();
         value(cpuUsage);
+        std::cout << "CPU Utilization updated: " << cpuUsage << "%" << std::endl;
     }
 
     double getCpuUsage()
@@ -71,8 +80,8 @@ int main()
     CpuUtilization cpuUtilization(bus, "/xyz/openbmc_project/sensors/utilization/cpu0");
 
     bus.request_name("xyz.openbmc_project.CpuUtilization");
-    
-    while(true)
+
+    while (true)
     {
         bus.process_discard();
         bus.wait();
@@ -80,3 +89,4 @@ int main()
 
     return 0;
 }
+
