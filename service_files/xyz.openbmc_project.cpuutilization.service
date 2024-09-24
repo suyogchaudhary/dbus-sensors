@@ -3,7 +3,7 @@ Description=CPU Utilization Monitoring Service
 After=phosphor-dbus-interfaces.service
 
 [Service]
-ExecStart=/usr/bin/cpu_utilization
+ExecStart=/usr/bin/cpuutilization
 Restart=always
 Type=dbus
 BusName=xyz.openbmc_project.CpuUtilization
