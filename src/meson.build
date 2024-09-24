@@ -72,6 +72,16 @@ if get_option('intel-cpu').allowed()
     peci_dep = dependency('libpeci', required: true)
 endif
 
+if get_option('cpuutilization').allowed()
+  executable(
+    'cpuutilization',
+    'cpuutilization.cpp',
+    dependencies: default_deps,
+    install: true,
+    install_dir: get_option('bindir')
+  )
+endif
+
 if get_option('adc').allowed()
     executable(
         'adcsensor',
